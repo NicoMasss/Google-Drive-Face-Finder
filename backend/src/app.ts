@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import searchRoutes from "./routes/search.routes.js";
+import googleRoutes from "./routes/google.routes.js";
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/search", searchRoutes);
+
+app.use("/auth", googleRoutes);
 
 export default app;
