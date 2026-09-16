@@ -12,3 +12,23 @@ export async function listDriveImages() {
     
     return response.data.files ?? [];
 }
+
+
+export async function downloadDriveImage(fileId: string) {
+    const drive = google.drive({
+        version: "v3",
+        auth: googleOAuth2Client
+    });
+
+    const response = await drive.files.get(
+        {
+            fileId,
+            alt: "media"
+        },
+        {
+            responseType: "arraybuffer"
+        }
+    );
+
+    return Buffer.from(response.data as ArrayBuffer);
+}
