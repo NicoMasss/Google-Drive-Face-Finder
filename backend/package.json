@@ -2,11 +2,13 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build": "node ./node_modules/typescript/lib/tsc.js --project tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "tsx --test tests/search.routes.test.ts"
   },
   "keywords": [],
   "author": "",

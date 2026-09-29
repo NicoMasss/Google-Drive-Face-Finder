@@ -1,4 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
+import json
+
+from fastapi import FastAPI, UploadFile, File, Form
 import cv2
 import numpy as np
 
@@ -64,7 +66,7 @@ async def compare_faces(image1: UploadFile = File(...), image2: UploadFile = Fil
          )
         )
 
-        threshold = 0.4
+        threshold = 0.2
         match = similarity_score >= threshold
 
         if match:
@@ -77,4 +79,33 @@ async def compare_faces(image1: UploadFile = File(...), image2: UploadFile = Fil
     "similarity_score": 0,
     "match": False
 }
+
+
+@app.post("/faces/compare-embedding")
+async def compare_with_embedding(
+    image: UploadFile = File(...),
+    reference_embedding: str = Form(...)
+):
+    contents = await image.read()
+    image_array = np.frombuffer(contents, dtype=np.uint8)
+    candidate_image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    faces = recognizer.detect_faces(candidate_image)
+
+    if not faces:
+        return {"similarity_score": 0, "match": False}
+
+    embedding1 = np.asarray(json.loads(reference_embedding), dtype=np.float32)
+    best_score = 0.0
+
+    for face in faces:
+        embedding2 = face.embedding
+        similarity_score = np.dot(embedding1, embedding2) / (
+            np.linalg.norm(embedding1) * np.linalg.norm(embedding2)
+        )
+        best_score = max(best_score, float(similarity_score))
+
+    return {
+        "similarity_score": best_score,
+        "match": True
+    }
          
